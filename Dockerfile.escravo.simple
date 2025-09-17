@@ -1,0 +1,39 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instalar todas as dependências
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    pkg-config \
+    libssl-dev \
+    libjsoncpp-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Baixar cpp-httplib
+RUN git clone https://github.com/yhirose/cpp-httplib.git && \
+    cp cpp-httplib/httplib.h /usr/local/include/ && \
+    rm -rf cpp-httplib
+
+# Criar link simbólico para jsoncpp
+RUN ln -sf /usr/include/jsoncpp/json /usr/include/json
+
+# Copiar e compilar código fonte
+ARG SOURCE_FILE
+COPY ${SOURCE_FILE} ./source.cpp
+
+# ...
+# Compilar o escravo sem suporte a SSL
+RUN g++ -std=c++17 -o escravo source.cpp \
+    -I/usr/include/jsoncpp \
+    -ljsoncpp \
+    -lpthread
+# ...
+EXPOSE 8081
+
+CMD ["./escravo"]

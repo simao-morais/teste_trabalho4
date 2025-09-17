@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mestre:
+    build:
+      context: .
+      dockerfile: Dockerfile.mestre
+    container_name: mestre
+    ports:
+      - "8080:8080"
+    networks:
+      - sistema-distribuido
+    # depends_on:
+    #   - escravo1
+    #   - escravo2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  escravo1:
+    build:
+      context: .
+      dockerfile: Dockerfile.escravo.simple
+      args:
+        SOURCE_FILE: Escravo1.cpp
+    container_name: escravo1
+    networks:
+      - sistema-distribuido
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  escravo2:
+    build:
+      context: .
+      dockerfile: Dockerfile.escravo.simple
+      args:
+        SOURCE_FILE: Escravo2.cpp
+    container_name: escravo2
+    networks:
+      - sistema-distribuido
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  sistema-distribuido:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
