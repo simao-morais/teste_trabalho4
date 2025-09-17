@@ -19,7 +19,7 @@ ClientWindow::ClientWindow(QWidget *parent) : QMainWindow(parent) {
     QVBoxLayout *configLayout = new QVBoxLayout(configGroup);
 
     labelHost = new QLabel("Host do Mestre:", this);
-    editHost = new QLineEdit("localhost", this);
+    editHost = new QLineEdit("10.180.46.169", this);
     labelPort = new QLabel("Porta do Mestre:", this);
     editPort = new QLineEdit("8080", this);
 
